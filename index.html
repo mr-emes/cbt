@@ -1299,57 +1299,55 @@ function updateExamsTable() {
         }
 
         // Login Functions
-        async function handleSmartLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            // Check for admin login
-            if (username.toLowerCase() === 'admin' && password === 'admin123') {
-                showScreen('adminDashboard');
-                await initializeAdminDashboard();
-                return;
-            }
-            
-            // Demo credentials
-            const demoStudents = {
-                '123456': { nisn: '123456', name: 'Ahmad Rizki', class: '6A', password: 'min2025' },
-                '123457': { nisn: '123457', name: 'Siti Aminah', class: '6A', password: 'min2025' },
-                '123458': { nisn: '123458', name: 'Budi Santoso', class: '6B', password: 'min2025' },
-                '123459': { nisn: '123459', name: 'Fatimah zahra', class: '6A', password: 'min2025' },
-                '123460': { nisn: '123460', name: 'Muhammad Iqbal', class: '6B', password: 'min2025' }
-            };
-            
-            const demoStudent = demoStudents[username];
-            if (demoStudent && demoStudent.password === password) {
-                currentStudent = demoStudent;
-                document.getElementById('participantName').textContent = demoStudent.name;
-                document.getElementById('participantNameMobile').textContent = demoStudent.name;
-                
-                showScreen('cbtInterface');
-                await initializeCBT();
-                return;
-            }
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Gagal',
-                html: `
-                    <p>Username atau Password salah!</p>
-                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                        <p class="font-semibold text-blue-800">Kredensial Siswa:</p>
-                        <p class="text-blue-700">NIS: <strong>123456</strong></p>
-                        <p class="text-blue-700">Password: <strong>min2025</strong></p>
-                    </div>
-                    <div class="mt-2 p-3 bg-green-50 rounded-lg">
-                        <p class="font-semibold text-green-800">Kredensial Admin:</p>
-                        <p class="text-green-700">Username: <strong>admin</strong></p>
-                        <p class="text-green-700">Password: <strong>admin123</strong></p>
-                    </div>
-                `,
-                confirmButtonColor: '#3b82f6'
-            });
-        }
+// Setup koneksi Supabase
+const supabaseUrl = "https://xsmsirwgpifmsghgovel.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzbXNpcndncGlmbXNnaGdvdmVsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3NDYzMDgsImV4cCI6MjA3MzMyMjMwOH0.P6zbM1-LSo5-c3a7FixalJ2oaRYP_-pVs5nBzD8AdIo";
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function handleSmartLogin(event) {
+  event.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  // Admin login
+  if (username.toLowerCase() === 'admin' && password === 'admin123') {
+    showScreen('adminDashboard');
+    await initializeAdminDashboard();
+    return;
+  }
+
+  try {
+    // Query Supabase tabel students
+    const { data: students, error } = await supabase
+      .from('students')
+      .select('*')
+      .eq('nisn', username)   // gunakan kolom nisn
+      .eq('password', password); // ⚠️ untuk demo saja, sebaiknya nanti hashed
+
+    if (error) {
+      console.error(error);
+      Swal.fire('❌ Error', 'Gagal menghubungi database!', 'error');
+      return;
+    }
+
+    if (students && students.length > 0) {
+      currentStudent = students[0];
+
+      // Update nama di UI
+      document.getElementById('participantName').textContent = currentStudent.name;
+      document.getElementById('participantNameMobile').textContent = currentStudent.name;
+
+      showScreen('cbtInterface');
+      await initializeCBT();
+    } else {
+      Swal.fire('Login Gagal', 'Username atau Password salah!', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('❌ Error', 'Terjadi kesalahan sistem.', 'error');
+  }
+}
+
 
         function showScreen(screenId) {
             const screens = ['loginScreen', 'cbtInterface', 'resultScreen', 'adminDashboard'];
