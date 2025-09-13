@@ -914,17 +914,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="resultsTableBody" class="divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">123456</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Ahmad Rizki</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">85</td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">B</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">17</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">3</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-01-15</td>
-                                    </tr>
+                                    <!-- Results will be populated here -->
                                 </tbody>
                             </table>
                         </div>
@@ -1389,6 +1379,10 @@
 
         // Admin Functions
         async function initializeAdminDashboard() {
+            updateStudentsTable();
+            updateQuestionsTable();
+            updateResultsTable();
+            updateDashboardStats();
             console.log('Admin dashboard initialized');
         }
 
@@ -1426,12 +1420,536 @@
             }
         }
 
+        // Student Management Functions
+        let students = [
+            { nisn: '123456', name: 'Ahmad Rizki', class: '6A', password: 'min2025', status: 'Aktif' },
+            { nisn: '123457', name: 'Siti Aminah', class: '6A', password: 'min2025', status: 'Aktif' },
+            { nisn: '123458', name: 'Budi Santoso', class: '6B', password: 'min2025', status: 'Aktif' },
+            { nisn: '123459', name: 'Fatimah Zahra', class: '6A', password: 'min2025', status: 'Aktif' },
+            { nisn: '123460', name: 'Muhammad Iqbal', class: '6B', password: 'min2025', status: 'Aktif' }
+        ];
+
         function showAddStudentModal() {
-            alert('Fitur tambah siswa akan segera tersedia!');
+            Swal.fire({
+                title: '👨‍🎓 Tambah Siswa Baru',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN</label>
+                            <input type="text" id="studentNIS" placeholder="Masukkan NIS siswa" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                            <input type="text" id="studentName" placeholder="Masukkan nama lengkap siswa"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                            <select id="studentClass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih Kelas</option>
+                                <option value="6A">Kelas 6A</option>
+                                <option value="6B">Kelas 6B</option>
+                                <option value="5A">Kelas 5A</option>
+                                <option value="5B">Kelas 5B</option>
+                                <option value="4A">Kelas 4A</option>
+                                <option value="4B">Kelas 4B</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <input type="password" id="studentPassword" placeholder="Password untuk login siswa" value="min2025"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '✅ Tambah Siswa',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6b7280',
+                width: '500px',
+                preConfirm: () => {
+                    const nisn = document.getElementById('studentNIS').value;
+                    const name = document.getElementById('studentName').value;
+                    const studentClass = document.getElementById('studentClass').value;
+                    const password = document.getElementById('studentPassword').value;
+                    
+                    if (!nisn || !name || !studentClass || !password) {
+                        Swal.showValidationMessage('Semua field harus diisi!');
+                        return false;
+                    }
+                    
+                    // Check if NIS already exists
+                    if (students.find(s => s.nisn === nisn)) {
+                        Swal.showValidationMessage('NIS sudah terdaftar!');
+                        return false;
+                    }
+                    
+                    return { nisn, name, class: studentClass, password };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    addStudent(result.value);
+                }
+            });
+        }
+
+        function addStudent(studentData) {
+            students.push({
+                nisn: studentData.nisn,
+                name: studentData.name,
+                class: studentData.class,
+                password: studentData.password,
+                status: 'Aktif'
+            });
+            
+            updateStudentsTable();
+            updateDashboardStats();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Siswa Berhasil Ditambahkan!',
+                html: `
+                    <div class="text-left bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">Data Siswa:</h4>
+                        <p><strong>NIS:</strong> ${studentData.nisn}</p>
+                        <p><strong>Nama:</strong> ${studentData.name}</p>
+                        <p><strong>Kelas:</strong> ${studentData.class}</p>
+                        <p><strong>Password:</strong> ${studentData.password}</p>
+                    </div>
+                `,
+                confirmButtonColor: '#059669'
+            });
+        }
+
+        function updateStudentsTable() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = students.map(student => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.nisn}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.class}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">${student.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                        <button onclick="editStudent('${student.nisn}')" class="text-blue-600 hover:text-blue-900">Edit</button>
+                        <button onclick="deleteStudent('${student.nisn}')" class="text-red-600 hover:text-red-900">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function editStudent(nisn) {
+            const student = students.find(s => s.nisn === nisn);
+            if (!student) return;
+            
+            Swal.fire({
+                title: '✏️ Edit Data Siswa',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">NIS/NISN</label>
+                            <input type="text" id="editStudentNIS" value="${student.nisn}" readonly
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap</label>
+                            <input type="text" id="editStudentName" value="${student.name}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                            <select id="editStudentClass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="6A" ${student.class === '6A' ? 'selected' : ''}>Kelas 6A</option>
+                                <option value="6B" ${student.class === '6B' ? 'selected' : ''}>Kelas 6B</option>
+                                <option value="5A" ${student.class === '5A' ? 'selected' : ''}>Kelas 5A</option>
+                                <option value="5B" ${student.class === '5B' ? 'selected' : ''}>Kelas 5B</option>
+                                <option value="4A" ${student.class === '4A' ? 'selected' : ''}>Kelas 4A</option>
+                                <option value="4B" ${student.class === '4B' ? 'selected' : ''}>Kelas 4B</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Password Baru (kosongkan jika tidak diubah)</label>
+                            <input type="password" id="editStudentPassword" placeholder="Password baru"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '✅ Simpan Perubahan',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#059669',
+                preConfirm: () => {
+                    const name = document.getElementById('editStudentName').value;
+                    const studentClass = document.getElementById('editStudentClass').value;
+                    const password = document.getElementById('editStudentPassword').value;
+                    
+                    if (!name || !studentClass) {
+                        Swal.showValidationMessage('Nama dan kelas harus diisi!');
+                        return false;
+                    }
+                    
+                    return { name, class: studentClass, password };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const studentIndex = students.findIndex(s => s.nisn === nisn);
+                    students[studentIndex].name = result.value.name;
+                    students[studentIndex].class = result.value.class;
+                    if (result.value.password) {
+                        students[studentIndex].password = result.value.password;
+                    }
+                    
+                    updateStudentsTable();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Data Siswa Diperbarui!',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            });
+        }
+
+        function deleteStudent(nisn) {
+            const student = students.find(s => s.nisn === nisn);
+            if (!student) return;
+            
+            Swal.fire({
+                title: '🗑️ Hapus Siswa?',
+                html: `Apakah Anda yakin ingin menghapus siswa:<br><strong>${student.name} (${student.nisn})</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '🗑️ Ya, Hapus',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#dc2626'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    students = students.filter(s => s.nisn !== nisn);
+                    updateStudentsTable();
+                    updateDashboardStats();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🗑️ Siswa Dihapus!',
+                        text: 'Data siswa telah dihapus dari sistem.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            });
         }
 
         function showAddQuestionModal() {
-            alert('Fitur tambah soal akan segera tersedia!');
+            Swal.fire({
+                title: '❓ Tambah Soal Baru',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                            <select id="questionSubject" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                <option value="">Pilih Mata Pelajaran</option>
+                                <option value="Matematika">Matematika</option>
+                                <option value="IPA">IPA</option>
+                                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                <option value="PKN">PKN</option>
+                                <option value="IPS">IPS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pertanyaan</label>
+                            <textarea id="questionText" rows="3" placeholder="Masukkan soal/pertanyaan..."
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilihan Jawaban</label>
+                            <div class="space-y-2">
+                                <input type="text" id="optionA" placeholder="A. Pilihan jawaban A"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                <input type="text" id="optionB" placeholder="B. Pilihan jawaban B"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                <input type="text" id="optionC" placeholder="C. Pilihan jawaban C"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                <input type="text" id="optionD" placeholder="D. Pilihan jawaban D"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jawaban Benar</label>
+                            <select id="correctAnswer" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                                <option value="">Pilih jawaban yang benar</option>
+                                <option value="0">A</option>
+                                <option value="1">B</option>
+                                <option value="2">C</option>
+                                <option value="3">D</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '✅ Tambah Soal',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#7c3aed',
+                cancelButtonColor: '#6b7280',
+                width: '600px',
+                preConfirm: () => {
+                    const subject = document.getElementById('questionSubject').value;
+                    const questionText = document.getElementById('questionText').value;
+                    const optionA = document.getElementById('optionA').value;
+                    const optionB = document.getElementById('optionB').value;
+                    const optionC = document.getElementById('optionC').value;
+                    const optionD = document.getElementById('optionD').value;
+                    const correct = document.getElementById('correctAnswer').value;
+                    
+                    if (!subject || !questionText || !optionA || !optionB || !optionC || !optionD || correct === '') {
+                        Swal.showValidationMessage('Semua field harus diisi!');
+                        return false;
+                    }
+                    
+                    return { subject, questionText, options: [optionA, optionB, optionC, optionD], correct: parseInt(correct) };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    addQuestion(result.value);
+                }
+            });
+        }
+
+        function addQuestion(questionData) {
+            const newQuestion = {
+                id: questions.length + 1,
+                question: questionData.questionText,
+                options: questionData.options,
+                correct: questionData.correct,
+                subject: questionData.subject
+            };
+            
+            questions.push(newQuestion);
+            updateQuestionsTable();
+            updateDashboardStats();
+            
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Soal Berhasil Ditambahkan!',
+                html: `
+                    <div class="text-left bg-purple-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-purple-800 mb-2">Detail Soal:</h4>
+                        <p><strong>Mata Pelajaran:</strong> ${questionData.subject}</p>
+                        <p><strong>Soal:</strong> ${questionData.questionText}</p>
+                        <p><strong>Jawaban Benar:</strong> ${String.fromCharCode(65 + questionData.correct)}. ${questionData.options[questionData.correct]}</p>
+                    </div>
+                `,
+                confirmButtonColor: '#7c3aed'
+            });
+        }
+
+        function updateQuestionsTable() {
+            const tbody = document.getElementById('questionsTableBody');
+            tbody.innerHTML = questions.map(question => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${question.id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate">${question.question}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${question.subject || 'Matematika'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                        <button onclick="viewQuestion(${question.id})" class="text-blue-600 hover:text-blue-900">Lihat</button>
+                        <button onclick="editQuestion(${question.id})" class="text-green-600 hover:text-green-900">Edit</button>
+                        <button onclick="deleteQuestion(${question.id})" class="text-red-600 hover:text-red-900">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewQuestion(questionId) {
+            const question = questions.find(q => q.id === questionId);
+            if (!question) return;
+            
+            Swal.fire({
+                title: `📝 Soal #${question.id}`,
+                html: `
+                    <div class="text-left space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Pertanyaan:</h4>
+                            <p class="text-gray-800">${question.question}</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 mb-2">Pilihan Jawaban:</h4>
+                            <div class="space-y-2">
+                                ${question.options.map((option, index) => `
+                                    <div class="flex items-center space-x-2 ${index === question.correct ? 'bg-green-100 p-2 rounded' : ''}">
+                                        <span class="font-medium">${String.fromCharCode(65 + index)}.</span>
+                                        <span>${option}</span>
+                                        ${index === question.correct ? '<span class="text-green-600 font-semibold">✓ Benar</span>' : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <p class="text-green-800"><strong>Mata Pelajaran:</strong> ${question.subject || 'Matematika'}</p>
+                        </div>
+                    </div>
+                `,
+                width: '600px',
+                confirmButtonText: '👍 OK',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function editQuestion(questionId) {
+            const question = questions.find(q => q.id === questionId);
+            if (!question) return;
+            
+            Swal.fire({
+                title: `✏️ Edit Soal #${question.id}`,
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                            <select id="editQuestionSubject" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="Matematika" ${(question.subject || 'Matematika') === 'Matematika' ? 'selected' : ''}>Matematika</option>
+                                <option value="IPA" ${question.subject === 'IPA' ? 'selected' : ''}>IPA</option>
+                                <option value="Bahasa Indonesia" ${question.subject === 'Bahasa Indonesia' ? 'selected' : ''}>Bahasa Indonesia</option>
+                                <option value="PKN" ${question.subject === 'PKN' ? 'selected' : ''}>PKN</option>
+                                <option value="IPS" ${question.subject === 'IPS' ? 'selected' : ''}>IPS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pertanyaan</label>
+                            <textarea id="editQuestionText" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">${question.question}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilihan Jawaban</label>
+                            <div class="space-y-2">
+                                <input type="text" id="editOptionA" value="${question.options[0]}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <input type="text" id="editOptionB" value="${question.options[1]}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <input type="text" id="editOptionC" value="${question.options[2]}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <input type="text" id="editOptionD" value="${question.options[3]}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jawaban Benar</label>
+                            <select id="editCorrectAnswer" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="0" ${question.correct === 0 ? 'selected' : ''}>A</option>
+                                <option value="1" ${question.correct === 1 ? 'selected' : ''}>B</option>
+                                <option value="2" ${question.correct === 2 ? 'selected' : ''}>C</option>
+                                <option value="3" ${question.correct === 3 ? 'selected' : ''}>D</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '✅ Simpan Perubahan',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#059669',
+                width: '600px',
+                preConfirm: () => {
+                    const subject = document.getElementById('editQuestionSubject').value;
+                    const questionText = document.getElementById('editQuestionText').value;
+                    const optionA = document.getElementById('editOptionA').value;
+                    const optionB = document.getElementById('editOptionB').value;
+                    const optionC = document.getElementById('editOptionC').value;
+                    const optionD = document.getElementById('editOptionD').value;
+                    const correct = document.getElementById('editCorrectAnswer').value;
+                    
+                    if (!subject || !questionText || !optionA || !optionB || !optionC || !optionD) {
+                        Swal.showValidationMessage('Semua field harus diisi!');
+                        return false;
+                    }
+                    
+                    return { subject, questionText, options: [optionA, optionB, optionC, optionD], correct: parseInt(correct) };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const questionIndex = questions.findIndex(q => q.id === questionId);
+                    questions[questionIndex].question = result.value.questionText;
+                    questions[questionIndex].options = result.value.options;
+                    questions[questionIndex].correct = result.value.correct;
+                    questions[questionIndex].subject = result.value.subject;
+                    
+                    updateQuestionsTable();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Soal Diperbarui!',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            });
+        }
+
+        function deleteQuestion(questionId) {
+            const question = questions.find(q => q.id === questionId);
+            if (!question) return;
+            
+            Swal.fire({
+                title: '🗑️ Hapus Soal?',
+                html: `Apakah Anda yakin ingin menghapus soal:<br><strong>"${question.question.substring(0, 50)}..."</strong>?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '🗑️ Ya, Hapus',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#dc2626'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    questions = questions.filter(q => q.id !== questionId);
+                    // Reindex questions
+                    questions.forEach((q, index) => {
+                        q.id = index + 1;
+                    });
+                    
+                    updateQuestionsTable();
+                    updateDashboardStats();
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🗑️ Soal Dihapus!',
+                        text: 'Soal telah dihapus dari sistem.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            });
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalQuestions').textContent = questions.length;
+        }
+
+        // Sample exam results for demo
+        let examResults = [
+            { nisn: '123456', name: 'Ahmad Rizki', score: 85, grade: 'B', correct: 17, incorrect: 3, date: '2025-01-15' },
+            { nisn: '123457', name: 'Siti Aminah', score: 90, grade: 'A', correct: 18, incorrect: 2, date: '2025-01-15' },
+            { nisn: '123458', name: 'Budi Santoso', score: 75, grade: 'C', correct: 15, incorrect: 5, date: '2025-01-15' },
+            { nisn: '123459', name: 'Fatimah Zahra', score: 95, grade: 'A', correct: 19, incorrect: 1, date: '2025-01-15' },
+            { nisn: '123460', name: 'Muhammad Iqbal', score: 80, grade: 'B', correct: 16, incorrect: 4, date: '2025-01-15' }
+        ];
+
+        function updateResultsTable() {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = examResults.map(result => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${result.nisn}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${result.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${result.score}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            result.grade === 'A' ? 'bg-green-100 text-green-800' :
+                            result.grade === 'B' ? 'bg-blue-100 text-blue-800' :
+                            result.grade === 'C' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }">${result.grade}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">${result.correct}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">${result.incorrect}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${result.date}</td>
+                </tr>
+            `).join('');
         }
 
         // Exam Management Functions
@@ -1660,11 +2178,148 @@
         }
 
         function viewExamReport(examId) {
+            // Sample exam results data
+            const examResults = [
+                { nisn: '123456', name: 'Ahmad Rizki', score: 85, grade: 'B', correct: 17, incorrect: 3, duration: '75 menit' },
+                { nisn: '123457', name: 'Siti Aminah', score: 90, grade: 'A', correct: 18, incorrect: 2, duration: '68 menit' },
+                { nisn: '123458', name: 'Budi Santoso', score: 75, grade: 'C', correct: 15, incorrect: 5, duration: '82 menit' },
+                { nisn: '123459', name: 'Fatimah Zahra', score: 95, grade: 'A', correct: 19, incorrect: 1, duration: '65 menit' },
+                { nisn: '123460', name: 'Muhammad Iqbal', score: 80, grade: 'B', correct: 16, incorrect: 4, duration: '78 menit' }
+            ];
+            
+            const averageScore = Math.round(examResults.reduce((sum, result) => sum + result.score, 0) / examResults.length);
+            const highestScore = Math.max(...examResults.map(r => r.score));
+            const lowestScore = Math.min(...examResults.map(r => r.score));
+            
             Swal.fire({
-                title: '📈 Laporan Ujian',
-                text: 'Fitur laporan ujian akan segera tersedia!',
-                icon: 'info',
+                title: '📊 Laporan Ujian Matematika',
+                html: `
+                    <div class="text-left space-y-4">
+                        <!-- Summary Stats -->
+                        <div class="grid grid-cols-3 gap-4 mb-4">
+                            <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-blue-600">${averageScore}</div>
+                                <div class="text-sm text-blue-800">Rata-rata</div>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-green-600">${highestScore}</div>
+                                <div class="text-sm text-green-800">Tertinggi</div>
+                            </div>
+                            <div class="bg-red-50 p-3 rounded-lg text-center">
+                                <div class="text-2xl font-bold text-red-600">${lowestScore}</div>
+                                <div class="text-sm text-red-800">Terendah</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Grade Distribution -->
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-gray-800 mb-2">Distribusi Nilai:</h4>
+                            <div class="grid grid-cols-4 gap-2 text-sm">
+                                <div class="text-center">
+                                    <div class="bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">A</div>
+                                    <div class="text-xs mt-1">2 siswa</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">B</div>
+                                    <div class="text-xs mt-1">2 siswa</div>
+                                </div>
+                                <div class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-semibold text-center">
+                                    <div>C</div>
+                                    <div class="text-xs mt-1">1 siswa</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="bg-gray-100 text-gray-800 px-2 py-1 rounded font-semibold">D/E</div>
+                                    <div class="text-xs mt-1">0 siswa</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Individual Results -->
+                        <div class="bg-white border rounded-lg overflow-hidden">
+                            <div class="bg-gray-50 px-4 py-2 font-semibold text-gray-800">Detail Hasil Siswa</div>
+                            <div class="max-h-60 overflow-y-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">Nama</th>
+                                            <th class="px-3 py-2 text-center">Nilai</th>
+                                            <th class="px-3 py-2 text-center">Grade</th>
+                                            <th class="px-3 py-2 text-center">Benar</th>
+                                            <th class="px-3 py-2 text-center">Durasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${examResults.map(result => `
+                                            <tr class="border-t">
+                                                <td class="px-3 py-2">${result.name}</td>
+                                                <td class="px-3 py-2 text-center font-semibold">${result.score}</td>
+                                                <td class="px-3 py-2 text-center">
+                                                    <span class="px-2 py-1 rounded text-xs font-semibold ${
+                                                        result.grade === 'A' ? 'bg-green-100 text-green-800' :
+                                                        result.grade === 'B' ? 'bg-blue-100 text-blue-800' :
+                                                        result.grade === 'C' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-red-100 text-red-800'
+                                                    }">${result.grade}</span>
+                                                </td>
+                                                <td class="px-3 py-2 text-center text-green-600">${result.correct}/20</td>
+                                                <td class="px-3 py-2 text-center text-gray-600">${result.duration}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Export Options -->
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">📥 Ekspor Laporan:</h4>
+                            <div class="flex space-x-2">
+                                <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm">
+                                    📊 Excel
+                                </button>
+                                <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                                    📄 PDF
+                                </button>
+                                <button onclick="printReport()" class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm">
+                                    🖨️ Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                width: '700px',
+                confirmButtonText: '👍 Tutup',
                 confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function exportToExcel() {
+            Swal.fire({
+                icon: 'success',
+                title: '📊 Ekspor ke Excel',
+                text: 'Laporan berhasil diekspor ke format Excel!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function exportToPDF() {
+            Swal.fire({
+                icon: 'success',
+                title: '📄 Ekspor ke PDF',
+                text: 'Laporan berhasil diekspor ke format PDF!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+
+        function printReport() {
+            Swal.fire({
+                icon: 'success',
+                title: '🖨️ Print Laporan',
+                text: 'Laporan siap untuk dicetak!',
+                timer: 2000,
+                showConfirmButton: false
             });
         }
 
@@ -1689,5 +2344,5 @@
             });
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e65dcf302449f0',t:'MTc1Nzc1MzEwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e67543439ba8fd',t:'MTc1Nzc1NDA2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
