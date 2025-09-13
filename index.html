@@ -546,6 +546,10 @@
                             <i class="fas fa-question-circle"></i>
                             <span>Kelola Soal</span>
                         </button>
+                        <button onclick="showAdminSection('exams')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 flex items-center space-x-3">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Kelola Ujian</span>
+                        </button>
                         <button onclick="showAdminSection('results')" class="admin-nav-btn w-full text-left px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700 flex items-center space-x-3">
                             <i class="fas fa-trophy"></i>
                             <span>Hasil Ujian</span>
@@ -732,6 +736,157 @@
                                             <button class="text-blue-600 hover:text-blue-900">Lihat</button>
                                             <button class="text-green-600 hover:text-green-900">Edit</button>
                                             <button class="text-red-600 hover:text-red-900">Hapus</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Management Section -->
+                <div id="adminExamsSection" class="admin-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Kelola Ujian</h2>
+                        <button onclick="showCreateExamModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Buat Ujian Baru</span>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Active Exams -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-play-circle text-green-600 mr-2"></i>
+                                Ujian Aktif
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-semibold text-green-800">Ujian Matematika Kelas 6</h4>
+                                            <p class="text-sm text-green-600">20 soal • 90 menit</p>
+                                            <p class="text-xs text-green-500 mt-1">Dimulai: 15 Jan 2025, 08:00</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button onclick="stopExam('math-6')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-stop"></i> Stop
+                                            </button>
+                                            <button onclick="viewExamDetails('math-6')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-eye"></i> Detail
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 bg-white rounded p-2">
+                                        <div class="flex justify-between text-xs">
+                                            <span>Peserta: <strong>3/5</strong></span>
+                                            <span>Selesai: <strong>1</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Scheduled Exams -->
+                        <div class="bg-white rounded-lg shadow-md p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                                Ujian Terjadwal
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-semibold text-yellow-800">Ujian IPA Kelas 6</h4>
+                                            <p class="text-sm text-yellow-600">25 soal • 120 menit</p>
+                                            <p class="text-xs text-yellow-500 mt-1">Jadwal: 20 Jan 2025, 10:00</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button onclick="startExam('ipa-6')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-play"></i> Mulai
+                                            </button>
+                                            <button onclick="editExam('ipa-6')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h4 class="font-semibold text-blue-800">Ujian Bahasa Indonesia</h4>
+                                            <p class="text-sm text-blue-600">30 soal • 90 menit</p>
+                                            <p class="text-xs text-blue-500 mt-1">Jadwal: 25 Jan 2025, 08:00</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button onclick="editExam('indo-6')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button onclick="deleteExam('indo-6')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">
+                                                <i class="fas fa-trash"></i> Hapus
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Exam History -->
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                        <div class="px-6 py-4 bg-gray-50 border-b">
+                            <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-history text-gray-600 mr-2"></i>
+                                Riwayat Ujian
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Ujian</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mata Pelajaran</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Peserta</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Ujian Tengah Semester - Matematika</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Matematika</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10 Jan 2025</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5/5</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Selesai</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                            <button onclick="viewExamReport('uts-math')" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-chart-bar"></i> Laporan
+                                            </button>
+                                            <button onclick="duplicateExam('uts-math')" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-copy"></i> Duplikat
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Quiz Harian - IPA</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">IPA</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">05 Jan 2025</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">4/5</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Dibatalkan</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                            <button onclick="viewExamReport('quiz-ipa')" class="text-blue-600 hover:text-blue-900">
+                                                <i class="fas fa-chart-bar"></i> Laporan
+                                            </button>
+                                            <button onclick="duplicateExam('quiz-ipa')" class="text-green-600 hover:text-green-900">
+                                                <i class="fas fa-copy"></i> Duplikat
+                                            </button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1254,6 +1409,7 @@
                 'dashboard': 'adminDashboardSection',
                 'students': 'adminStudentsSection',
                 'questions': 'adminQuestionsSection',
+                'exams': 'adminExamsSection',
                 'results': 'adminResultsSection'
             };
             
@@ -1277,6 +1433,261 @@
         function showAddQuestionModal() {
             alert('Fitur tambah soal akan segera tersedia!');
         }
+
+        // Exam Management Functions
+        function showCreateExamModal() {
+            Swal.fire({
+                title: '📝 Buat Ujian Baru',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Ujian</label>
+                            <input type="text" id="examName" placeholder="Contoh: Ujian Tengah Semester - Matematika" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Mata Pelajaran</label>
+                            <select id="examSubject" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="">Pilih Mata Pelajaran</option>
+                                <option value="matematika">Matematika</option>
+                                <option value="ipa">IPA</option>
+                                <option value="bahasa-indonesia">Bahasa Indonesia</option>
+                                <option value="pkn">PKN</option>
+                                <option value="ips">IPS</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah Soal</label>
+                                <input type="number" id="examQuestions" value="20" min="5" max="50"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Durasi (menit)</label>
+                                <input type="number" id="examDuration" value="90" min="30" max="180"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal & Waktu Mulai</label>
+                            <input type="datetime-local" id="examDateTime"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kelas</label>
+                            <select id="examClass" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                                <option value="">Pilih Kelas</option>
+                                <option value="6a">Kelas 6A</option>
+                                <option value="6b">Kelas 6B</option>
+                                <option value="5a">Kelas 5A</option>
+                                <option value="5b">Kelas 5B</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '✅ Buat Ujian',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#6b7280',
+                width: '600px',
+                preConfirm: () => {
+                    const name = document.getElementById('examName').value;
+                    const subject = document.getElementById('examSubject').value;
+                    const questions = document.getElementById('examQuestions').value;
+                    const duration = document.getElementById('examDuration').value;
+                    const datetime = document.getElementById('examDateTime').value;
+                    const examClass = document.getElementById('examClass').value;
+                    
+                    if (!name || !subject || !questions || !duration || !datetime || !examClass) {
+                        Swal.showValidationMessage('Semua field harus diisi!');
+                        return false;
+                    }
+                    
+                    return { name, subject, questions, duration, datetime, examClass };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    createExam(result.value);
+                }
+            });
+        }
+
+        function createExam(examData) {
+            Swal.fire({
+                icon: 'success',
+                title: '🎉 Ujian Berhasil Dibuat!',
+                html: `
+                    <div class="text-left bg-green-50 p-4 rounded-lg">
+                        <h4 class="font-semibold text-green-800 mb-2">Detail Ujian:</h4>
+                        <p><strong>Nama:</strong> ${examData.name}</p>
+                        <p><strong>Mata Pelajaran:</strong> ${examData.subject}</p>
+                        <p><strong>Jumlah Soal:</strong> ${examData.questions}</p>
+                        <p><strong>Durasi:</strong> ${examData.duration} menit</p>
+                        <p><strong>Jadwal:</strong> ${new Date(examData.datetime).toLocaleString('id-ID')}</p>
+                        <p><strong>Kelas:</strong> ${examData.examClass}</p>
+                    </div>
+                    <p class="mt-3 text-sm text-gray-600">Ujian telah dijadwalkan dan akan muncul di daftar ujian terjadwal.</p>
+                `,
+                confirmButtonColor: '#059669'
+            });
+        }
+
+        function startExam(examId) {
+            Swal.fire({
+                title: '🚀 Mulai Ujian?',
+                text: 'Ujian akan dimulai dan siswa dapat mengakses soal.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '✅ Ya, Mulai',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#059669'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '✅ Ujian Dimulai!',
+                        text: 'Siswa sekarang dapat mengakses ujian.',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            });
+        }
+
+        function stopExam(examId) {
+            Swal.fire({
+                title: '⏹️ Hentikan Ujian?',
+                text: 'Ujian akan dihentikan dan siswa tidak dapat melanjutkan.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '⏹️ Ya, Hentikan',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#dc2626'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '⏹️ Ujian Dihentikan!',
+                        text: 'Ujian telah dihentikan dan dipindahkan ke riwayat.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            });
+        }
+
+        function editExam(examId) {
+            Swal.fire({
+                title: '✏️ Edit Ujian',
+                text: 'Fitur edit ujian akan segera tersedia!',
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function deleteExam(examId) {
+            Swal.fire({
+                title: '🗑️ Hapus Ujian?',
+                text: 'Ujian akan dihapus permanen. Tindakan ini tidak dapat dibatalkan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '🗑️ Ya, Hapus',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#dc2626'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '🗑️ Ujian Dihapus!',
+                        text: 'Ujian telah dihapus dari sistem.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            });
+        }
+
+        function viewExamDetails(examId) {
+            Swal.fire({
+                title: '📊 Detail Ujian',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Ujian Matematika Kelas 6</h4>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p><strong>Jumlah Soal:</strong> 20</p>
+                                    <p><strong>Durasi:</strong> 90 menit</p>
+                                    <p><strong>Kelas:</strong> 6A</p>
+                                </div>
+                                <div>
+                                    <p><strong>Dimulai:</strong> 15 Jan 2025, 08:00</p>
+                                    <p><strong>Status:</strong> <span class="text-green-600">Aktif</span></p>
+                                    <p><strong>Peserta:</strong> 3/5</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h5 class="font-semibold text-gray-800 mb-2">Status Peserta:</h5>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span>Ahmad Rizki (123456)</span>
+                                    <span class="text-green-600">✅ Selesai</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Siti Aminah (123457)</span>
+                                    <span class="text-blue-600">⏳ Sedang mengerjakan</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Budi Santoso (123458)</span>
+                                    <span class="text-yellow-600">⏳ Sedang mengerjakan</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Fatimah Zahra (123459)</span>
+                                    <span class="text-gray-500">⏸️ Belum mulai</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Muhammad Iqbal (123460)</span>
+                                    <span class="text-gray-500">⏸️ Belum mulai</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                width: '600px',
+                confirmButtonText: '👍 OK',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function viewExamReport(examId) {
+            Swal.fire({
+                title: '📈 Laporan Ujian',
+                text: 'Fitur laporan ujian akan segera tersedia!',
+                icon: 'info',
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+
+        function duplicateExam(examId) {
+            Swal.fire({
+                title: '📋 Duplikat Ujian?',
+                text: 'Ujian akan diduplikat dengan pengaturan yang sama.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '📋 Ya, Duplikat',
+                cancelButtonText: '❌ Batal',
+                confirmButtonColor: '#059669'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '📋 Ujian Diduplikat!',
+                        text: 'Ujian baru telah dibuat berdasarkan ujian sebelumnya.',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            });
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e64acc25b24097',t:'MTc1Nzc1MjMyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97e65dcf302449f0',t:'MTc1Nzc1MzEwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
